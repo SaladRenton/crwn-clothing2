@@ -1,10 +1,16 @@
 import { initializeApp } from "firebase/app";
+
+
 import {
     getAuth,
     signInWithRedirect,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
 } from "firebase/auth";
+
+
 import {
     getFirestore,
     doc,
@@ -37,9 +43,13 @@ provider.setCustomParameters({
 
 
 export const auth = getAuth();
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+export const signInWithGooglePopup = () =>
+    signInWithPopup(auth, provider);
 
-export const db = getFirestore(app); 
+export const signInWithGoogleRedirect = () =>
+    signInWithRedirect(auth, provider);
+
+export const db = getFirestore(app);
 
 export const createUserDocumentFromAuth = async (userAuth) => {
     const userDocRef = doc(db, "users", userAuth.uid);
@@ -61,9 +71,24 @@ export const createUserDocumentFromAuth = async (userAuth) => {
 
     return userDocRef;
 }; // Aquí falta la llave de cierre para la función
-    
 
 
 
 
-    
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+    if (!email || !password) return;
+
+    return await createUserWithEmailAndPassword(auth, email, password);
+}
+
+
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+    if (!email || !password) return;
+
+    return await signInWithEmailAndPassword(auth, email, password);
+}
+
+
+
+
+
