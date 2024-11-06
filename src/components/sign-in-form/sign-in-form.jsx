@@ -5,30 +5,28 @@ import './sign-in-form.styles.scss'
 import Button from '../button/button.component'
 import { signInWithGooglePopup, signInAuthUserWithEmailAndPassword } from '../../utils/firebase/firebase.utils'
 
-
-
 const defaultFormFields = {
     email: '',
     password: '',
-
 }
 
 const SignInForm = () => {
     const [formFields, setFormFields] = useState(defaultFormFields);
     const { email, password } = formFields;
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
 
     const signInWithGoogle = async (event) => {
-        event.preventDefault(); // Previene el submit del formulario
+        event.preventDefault();
         try {
             const response = await signInWithGooglePopup();
             const { user } = response;
             await createUserDocumentFromAuth(user);
         } catch (error) {
             console.error(error);
-            alert('An error occurred while signing in with Google. Please try again later.');
+            setError('An error occurred while signing in with Google. Please try again later.');
         }
     };
+
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
     }
@@ -40,31 +38,27 @@ const SignInForm = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setError('');
+        setError(null);
 
         try {
-            const response = await signInAuthUserWithEmailAndPassword(email, password);
-            console.log(response)
+            const user = await signInAuthUserWithEmailAndPassword(email, password);
+            console.log(user)
             resetFormFields();
         } catch (error) {
             switch (error.code) {
                 case 'auth/wrong-password':
-                    alert('Incorrect password for email ');
+                    setError('Incorrect password for email');
                     break;
                 case 'auth/user-not-found':
-                    alert('User not found with this email');
+                    setError('User not found with this email');
                     break;
                 default:
                     console.error(error);
-                    alert('An error occurred while signing in. Please try again later.');
-
+                    setError('An error occurred while signing in. Please try again later.');
             }
-
-
         }
     }
 
-    // El return debe estar AQUÍ, fuera de handleSubmit
     return (
         <div className="sign-up-container">
             <h2>Already have an account?</h2>
@@ -74,7 +68,6 @@ const SignInForm = () => {
                     label="Email"
                     type="email"
                     required
-
                     onChange={handleChange}
                     name="email"
                     value={email}
@@ -97,18 +90,9 @@ const SignInForm = () => {
                         Google sign in
                     </Button>
                 </div>
-
-
-
             </form>
-
-
-            {/* Botón de Google fuera del formulario */}
-
         </div>
     );
 }
-
-
 
 export default SignInForm;
