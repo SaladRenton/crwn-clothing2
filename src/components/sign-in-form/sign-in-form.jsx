@@ -17,14 +17,11 @@ const SignInForm = () => {
 
     const signInWithGoogle = async (event) => {
         event.preventDefault();
-        try {
-            const response = await signInWithGooglePopup();
-            const { user } = response;
-            await createUserDocumentFromAuth(user);
-        } catch (error) {
-            console.error(error);
-            setError('An error occurred while signing in with Google. Please try again later.');
-        }
+
+        await signInWithGooglePopup();
+
+
+
     };
 
     const resetFormFields = () => {
