@@ -11,14 +11,18 @@ import {
     signOut,
     onAuthStateChanged
 
-    } from "firebase/auth";
+} from "firebase/auth";
 
 
 import {
     getFirestore,
     doc,
     getDoc,
-    setDoc
+    setDoc,
+    collection,
+    writeBatch,
+    query,
+    getDocs,
 } from 'firebase/firestore'
 
 
@@ -74,6 +78,39 @@ export const createUserDocumentFromAuth = async (userAuth) => {
 
     return userDocRef;
 }; // Aquí falta la llave de cierre para la función
+
+
+export const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
+    const collectionRef = collection(db, collectionKey);
+    const batch = writeBatch(db);
+
+    objectsToAdd.forEach((object) => {
+        const docRef = doc(collectionRef, object.title.toLowerCase())
+        batch.set(docRef, object);
+    });
+    await batch.commit();
+    console.log("done");
+
+
+}
+
+export const getCaregoriesAndDocuments = async () => {
+    const collectionRef = collection(db, 'categores');
+    const q = query(collectionRef)
+    const querySnapshot = await getDocs(q)
+
+    const categoryMap = querySnapshot.docs.reduce((acc, docSnapchot) => {
+        const { title, items } = docSnapchot.data()
+        acc[title.toLowerCase()] = items
+        return acc
+
+
+    }, {})
+
+    return categoryMap;
+
+
+}
 
 
 
