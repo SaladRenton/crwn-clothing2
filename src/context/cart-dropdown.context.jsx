@@ -1,6 +1,7 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useReducer } from 'react';
 
-// Funciones para manipular el carrito
+import { createAction } from '../utils/reducer/reducer.utils';
+
 const addCartItem = (cartItems, productToAdd) => {
   const existingCartItem = cartItems.find(
     (cartItem) => cartItem.id === productToAdd.id
@@ -16,6 +17,7 @@ const addCartItem = (cartItems, productToAdd) => {
 
   return [...cartItems, { ...productToAdd, quantity: 1 }];
 };
+
 
 const decreaseCartItemQuantity = (cartItems, cartItemToRemove) => {
   // find the cart item to remove
@@ -39,65 +41,124 @@ const decreaseCartItemQuantity = (cartItems, cartItemToRemove) => {
 const clearCartItem = (cartItems, cartItemToClear) =>
   cartItems.filter((cartItem) => cartItem.id !== cartItemToClear.id);
 
+
+
+const CART_ACTION_TYPES = {
+  SET_CART_ITEMS: 'SET_CART_ITEMS',
+  SET_IS_CART_OPENED: 'SET_IS_CART_OPENED'
+
+}
+
+
+const INITIAL_STATE = {
+  isCartOpened: false,
+  cartItems: [],
+  itemCount: 0,
+  cartTotal: 0
+}
+
+const cartReducer = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case CART_ACTION_TYPES.SET_CART_ITEMS:
+      return {
+        ...state,
+        ...payload
+      }
+    case CART_ACTION_TYPES.SET_IS_CART_OPENED:
+      return {
+        ...state,
+        isCartOpened: payload
+      }
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
+  }
+
+}
+
+
+
+
 // Crea el contexto
 export const CartDropdownContext = createContext({
   cartItems: [],
   isCartOpened: false,
-  addItemToCart: () => {},
-  decreaseCartItemQuantity: () => {},
-  setIsCartOpened: () => {},
+  setIsCartOpen: () => { },
+  addItemToCart: () => { },
+  decreaseCartItemQuantity: () => { },
+  setIsCartOpened: () => { },
   itemCount: 0,
-  clearItemFromCart: () => {},
+  clearItemFromCart: () => { },
   cartTotal: 0,
 });
 
 // Componente de proveedor del contexto
 export const CartDropdownProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-  const [isCartOpened, setIsCartOpened] = useState(false);
-  const [itemCount, setItemCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
 
 
-  const toggleIsCartOpen = () => setIsCartOpened(!isCartOpened);
+  const [{ cartItems, itemCount, cartTotal, isCartOpened }, dispatch] = useReducer(cartReducer, INITIAL_STATE);
+
+
+
+  const updateCartItemDropdownReducer = (newCartItems) => {
+
+    const newItemCount = newCartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+    const newCartTotal = newCartItems.reduce((total, cartItem) =>
+      total + (cartItem.quantity * cartItem.price), 0)
+
+    const payload = {
+      cartItems: newCartItems,
+      itemCount: newItemCount,
+      cartTotal: newCartTotal,      
+
+    }
+
+    dispatch(
+      createAction(CART_ACTION_TYPES.SET_CART_ITEMS, payload)
+    );
+
+  }
+
 
   const addItemToCart = (productToAdd) => {
-    setCartItems(addCartItem(cartItems, productToAdd));
+    const newCartItems = addCartItem(cartItems, productToAdd)
+    updateCartItemDropdownReducer(newCartItems);
   };
 
   const decreaseItemQuantity = (cartItemToRemove) => {
-    setCartItems(decreaseCartItemQuantity(cartItems, cartItemToRemove));
+    const newCartItems = decreaseCartItemQuantity(cartItems, cartItemToRemove)
+    updateCartItemDropdownReducer(newCartItems);
   };
-
-  useEffect(() => {
-    setItemCount(cartItems.reduce((acc, item) => acc + item.quantity, 0));
-  }, [cartItems]);
 
   const clearItemFromCart = (cartItemToClear) => {
-    setCartItems(clearCartItem(cartItems, cartItemToClear));
+    const newCartItems = clearCartItem(cartItems, cartItemToClear)
+    updateCartItemDropdownReducer(newCartItems);
+  };
+
+  const setIsCartOpened = (bool) => {
+    dispatch(
+      createAction(CART_ACTION_TYPES.SET_IS_CART_OPENED, bool)
+    );
   };
 
 
-  useEffect(()=>{
-    const newCartTotal = cartItems.reduce((total, cartItem) => 
-      total + (cartItem.quantity * cartItem.price), 0);
-    setCartTotal(newCartTotal);
-  },[cartItems])
+
+  const value = {
+    isCartOpened,
+    setIsCartOpened,
+    addItemToCart,
+    decreaseItemQuantity,
+    clearItemFromCart,
+    itemCount,
+    cartItems,
+    cartTotal
+  }
 
   return (
     <CartDropdownContext.Provider
-      value={{
-        cartItems,
-        setCartItems,
-        isCartOpened,
-        setIsCartOpened,
-        toggleIsCartOpen,
-        addItemToCart,
-        decreaseItemQuantity,
-        itemCount,
-        clearItemFromCart,
-        cartTotal
-      }}
+      value={value}
     >
       {children}
     </CartDropdownContext.Provider>

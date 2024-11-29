@@ -6,12 +6,12 @@ import { CartDropdownContext } from '../../context/cart-dropdown.context'
 import { useNavigate } from 'react-router-dom';
 
 const CartDropdown = () => {
-    const { cartItems, toggleIsCartOpen, clearItemFromCart } = useContext(CartDropdownContext); 
+    const { cartItems, clearItemFromCart } = useContext(CartDropdownContext); 
     const navigate = useNavigate();
 
     const goToCheckoutHandler = () => {
         navigate('/checkout');
-        toggleIsCartOpen(); 
+         
     }
 
     // Función para eliminar un item del carrito

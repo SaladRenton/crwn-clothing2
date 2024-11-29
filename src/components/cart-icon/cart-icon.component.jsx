@@ -5,7 +5,14 @@ import { useContext } from 'react'
 
 const CartIcon = () => {
 
-    const { itemCount, toggleIsCartOpen } = useContext(CartDropdownContext);
+    const { itemCount, isCartOpened, setIsCartOpened } = useContext(CartDropdownContext);
+
+    const toggleIsCartOpen = () => {
+        if (isCartOpened) {
+            setIsCartOpened(false)
+        } else { setIsCartOpened(true) }
+
+    }
 
 
     return (

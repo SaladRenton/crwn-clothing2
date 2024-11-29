@@ -1,28 +1,50 @@
-import { createContext, useState, useEffect } from "react";
-import { getCaregoriesAndDocuments } from "../utils/firebase/firebase.utils.js"
+import { createContext, useReducer, useEffect } from "react";
+import { getCaregoriesAndDocuments } from "../utils/firebase/firebase.utils.js";
 
-export const CategoriesContext = createContext({
+// Estado inicial
+const initialState = {
     categoriesMap: {},
-    setCategoriesMap: () => { }, // Cambio aquí
-});
+};
 
+// Definición de acciones
+const CATEGORIES_ACTIONS = {
+    SET_CATEGORIES: 'SET_CATEGORIES',
+};
+
+// Reducer
+const categoriesReducer = (state, action) => {
+    switch (action.type) {
+        case CATEGORIES_ACTIONS.SET_CATEGORIES:
+            return {
+                ...state,
+                categoriesMap: action.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+// Crear el contexto
+export const CategoriesContext = createContext(initialState);
+
+// Componente de proveedor del contexto
 export const CategoriesProvider = ({ children }) => {
-    const [categoriesMap, setCategoriesMap] = useState({});
-    const value = { categoriesMap, setCategoriesMap };
+    const [state, dispatch] = useReducer(categoriesReducer, initialState);
 
     useEffect(() => {
         const getCategoriesMap = async () => {
-            const categoryMap = await getCaregoriesAndDocuments()
-            
-            setCategoriesMap(categoryMap) // Añadí esta línea para actualizar el estado
-        }
+            const categoryMap = await getCaregoriesAndDocuments();
+            dispatch({ type: CATEGORIES_ACTIONS.SET_CATEGORIES, payload: categoryMap });
+        };
 
-        getCategoriesMap()
-    },[])
+        getCategoriesMap();
+    }, []);
+
+    const value = { categoriesMap: state.categoriesMap };
 
     return (
         <CategoriesContext.Provider value={value}>
             {children}
         </CategoriesContext.Provider>
     );
-}
+}; 
