@@ -8,6 +8,21 @@ import Checkout from './components/routes/checkout/checkout.component.jsx'
 
 
 const App = () => {
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChangedListener((user) => {
+
+      if (user) {
+        createUserDocumentFromAuth(user)
+
+
+      }
+      setCurrentUser(user);
+    });
+
+    return unsubscribe; // Cleanup function
+  }, []); // Los corchetes estaban mal ubicados
+
   return (
     <Routes>
       <Route path="/" element={<Navigation />}>
