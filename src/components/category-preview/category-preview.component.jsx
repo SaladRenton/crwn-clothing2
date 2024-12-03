@@ -1,27 +1,26 @@
-import {CategoryPreviewContainer,Title,Preview } from './category-preview.styles.jsx'
-import { Fragment } from 'react';
-import ProductCard from '../../components/product-card/product-card';
+import ProductCard from '../product-card/product-card.component';
+
+import {
+  CategoryPreviewContainer,
+  Title,
+  Preview,
+} from './category-preview.styles';
 
 const CategoryPreview = ({ title, products }) => {
-    return (
-        <CategoryPreviewContainer>
-            <Fragment>
-                
-                    <Title  to={`/shop/${title.toLowerCase()}`} className='title'>
-                        {title.toUpperCase()}
-                    </Title >
-                
-
-                <Preview>
-                    {
-                        products.slice(0, 4).map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))
-                    }
-                </Preview>
-            </Fragment>                                                                
-        </CategoryPreviewContainer>
-    )
-}
+  return (
+    <CategoryPreviewContainer>
+      <h2>
+        <Title to={title}>{title.toUpperCase()}</Title>
+      </h2>
+      <Preview>
+        {products
+          .filter((_, idx) => idx < 4)
+          .map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+      </Preview>
+    </CategoryPreviewContainer>
+  );
+};
 
 export default CategoryPreview;
