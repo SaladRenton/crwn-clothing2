@@ -23,7 +23,7 @@ import {
 const Navigation = () => {
   const currentUser = useSelector(selectCurrentUser);
   const isCartOpen = useSelector(selectIsCartOpen)
-  console.log("Is Cart Open in Navigation:", isCartOpen);
+  
 
 
   return (
