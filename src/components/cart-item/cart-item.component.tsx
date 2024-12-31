@@ -7,7 +7,7 @@ type CartItemProps = {
   quantity: number;
 };
 
-const CartItem = (cartItem: CartItemProps) => {
+const CartItem = ({ cartItem }: { cartItem: CartItemProps }) => {
   const { name, imageUrl, price, quantity } = cartItem;
   return (
     <CartItemContainer>

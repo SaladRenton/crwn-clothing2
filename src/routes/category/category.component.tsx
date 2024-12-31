@@ -1,17 +1,26 @@
-import { useState, useEffect, Fragment } from 'react';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect, Fragment } from "react";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import { Spinner }from '../../components/spinner/spinner.component';
+import { Spinner } from "../../components/spinner/spinner.component";
 
-import ProductCard from '../../components/product-card/product-card.component';
+import ProductCard from "../../components/product-card/product-card.component";
 
-import { selectCategoriesMap, selectIsLoading } from '../../store/categories/categories.selector';
+import {
+  selectCategoriesMap,
+  selectIsLoading,
+} from "../../store/categories/categories.selector";
 
-import { CategoryContainer, Title } from './category.styles';
+import { CategoryContainer, Title } from "./category.styles";
+
+type CategoryRouteParams = {
+  category: string;
+};
 
 const Category = () => {
-  const { category } = useParams();
+  const { category } = useParams<
+    keyof CategoryRouteParams
+  >() as CategoryRouteParams;
   const categoriesMap = useSelector(selectCategoriesMap);
   const isLoading = useSelector(selectIsLoading);
   const [products, setProducts] = useState(categoriesMap[category]);
@@ -36,6 +45,5 @@ const Category = () => {
     </Fragment>
   );
 };
-
 
 export default Category;
